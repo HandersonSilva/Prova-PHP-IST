@@ -15,12 +15,32 @@ USE `ist`;
 DROP TABLE IF EXISTS `pessoas`;
 
 CREATE TABLE `pessoas` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `id` bigint(11) unsigned NOT NULL AUTO_INCREMENT,
   `nome` varchar(200) NOT NULL DEFAULT '',
   `cpf` varchar(11) NOT NULL DEFAULT '',
   `endereco` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `contas` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `pessoa_id` bigint(20) unsigned NOT NULL,
+  `numero` varchar(200) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+  `saldo` decimal(18,2) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `contas_pessoa_id_fk` (`pessoa_id`) USING BTREE,
+  CONSTRAINT `contas_pessoa_id_fk` FOREIGN KEY (`pessoa_id`) REFERENCES `pessoas` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `historico` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `conta_id` bigint(20) unsigned NOT NULL,
+  `valor` decimal(18,2) DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `historico_conta_id_fk` (`conta_id`) USING BTREE,
+  CONSTRAINT `historico_conta_id_fk` FOREIGN KEY (`conta_id`) REFERENCES `contas` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 LOCK TABLES `pessoas` WRITE;
 /*!40000 ALTER TABLE `pessoas` DISABLE KEYS */;

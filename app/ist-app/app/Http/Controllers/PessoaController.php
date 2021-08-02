@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\PessoaRequest;
+use App\Repository\PessoaRepository;
 use Illuminate\Http\Request;
-use App\Models\Pessoa;
 
 class PessoaController extends Controller
 {
+    protected $pessoaRepository;
+
+    public function __construct(PessoaRepository $pessoaRepository){
+        $this->pessoaRepository = $pessoaRepository;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,10 +20,11 @@ class PessoaController extends Controller
      */
     public function index()
     {
+        session()->forget('texto_busca');
 
-        $clientes = Pessoa::paginate();
+        $pessoas = $this->pessoaRepository->getPessoas();
 
-        return view('index')->with(compact('clientes'));
+        return view('pessoa.index')->with(compact('pessoas'));
     }
 
 
@@ -28,7 +35,7 @@ class PessoaController extends Controller
      */
     public function create()
     {
-        return view('cadastrar');
+        return view('pessoa.cadastrar');
     }
 
     /**
@@ -37,22 +44,19 @@ class PessoaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PessoaRequest $request)
     {
+
         $data = $request->all();
-        if (empty($data['nome'])){
-            $request->session()->flash('error',"Por favor preenchar o campo nome");
-            $cliente = $data;
-            return view('cadastrar')->with(compact('cliente'));
+        $status = $this->pessoaRepository->store($data);
+
+        if(!$status){
+            $request->session()->flash('error',"Error ao salvar o registro");
+            $pessoa = $data;
+            return view('pessoa.cadastrar')->with(compact('pessoa'));
         }
 
-        if (!empty($data['id'])){
-            $cliente = Pessoa::find($data['id']);
-        }else{
-            $cliente = Pessoa::create($data);
-        }
-
-        return redirect('cliente');
+        return redirect('pessoa');
     }
 
     /**
@@ -63,9 +67,9 @@ class PessoaController extends Controller
      */
     public function edit($id)
     {
-        $cliente = Pessoa::find($id);
+        $pessoa = $this->pessoaRepository->getPessoa($id);
 
-        return view('cadastrar')->with(compact('cliente'));
+        return view('pessoa.cadastrar')->with(compact('pessoa'));
     }
 
     /**
@@ -75,21 +79,20 @@ class PessoaController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(PessoaRequest $request, $id)
     {
         $data = $request->all();
+        unset($data['id']);
 
-        $cliente = Pessoa::find($id);
-        $cliente->nome = $data['nome'];
-        $cliente->sobre_nome = $data['sobre_nome'];
-        $cliente->endereco = $data['endereco'];
-        $cliente->bairro = $data['bairro'];
-        $cliente->cidade = $data['cidade'];
-        $cliente->uf = $data['uf'];
-        $cliente->cep = $data['cep'];
-        $cliente->save();
+        $status = $this->pessoaRepository->update($id,$data);
 
-        return redirect('cliente');
+        if(!$status){
+            $request->session()->flash('error',"Error ao atualizar o registro");
+            $pessoa = $data;
+            return view('pessoa.cadastrar')->with(compact('pessoa'));
+        }
+
+        return redirect('pessoa');
     }
 
     /**
@@ -100,34 +103,30 @@ class PessoaController extends Controller
      */
     public function destroy($id)
     {
-        $cliente = Pessoa::find($id);
-        $cliente->delete();
-        return true;
+        $status = $this->pessoaRepository->delete($id);
+
+        if(!$status){
+            return response()->json([],400);
+        }
+
+         return $status;
     }
 
-    public function pesquisarCliente(Request $request)
+    public function pesquisar(Request $request)
     {
         $data = $request->all();
         $request->session()->flash('texto_busca',$data['texto_busca'] );
 
-        $clientes = Pessoa::where('nome', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('sobre_nome', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('endereco', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('bairro', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('cidade', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('uf', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('cep', 'like','%'.$data['texto_busca'].'%')
-                    ->orwhere('id', '=',$data['texto_busca'])
-                    ->get();
+        $pessoas = $this->pessoaRepository->pesquisar($data);
 
-        return view('index')->with(compact('clientes'));
+        return view('pessoa.index')->with(compact('pessoas'));
     }
 
-    public function getListaCliente()
+    public function getListaPessoas()
     {
-        $clientes = Pessoa::all();
+        $pessoas = $this->pessoaRepository->getListaPessoas();
 
-        return $clientes;
+        return $pessoas;
 
     }
 }

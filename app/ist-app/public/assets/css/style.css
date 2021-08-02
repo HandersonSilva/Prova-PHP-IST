@@ -1,10 +1,10 @@
 .conteudo {
-    min-height: 500px;
+    min-height: 550px;
     background: rgb(255, 255, 255);
-    margin-top: 30px;
+    margin-top: 12px;
     margin-bottom: 60px;
     box-shadow: inset 0 0 0 #bdbcb8, 0 0 10px #d0c6c6;
-    padding: 16px;
+    padding: 7px;
 }
 
 .conteudo-titulo {
@@ -17,13 +17,14 @@
 
 .conteudo-titulo h3 {
     color: #787b8d;
+    font-size: 18px!important;
 }
 
 .div-botoes {
     margin: 10px;
 }
 
-.modal-cliente {
+.modal-pessoa {
     min-width: 750px;
 }
 
@@ -35,4 +36,36 @@
 .scroll-table {
     max-height: 570px;
     overflow-y: auto;
+}
+
+.menu-lateral{
+    padding-right: 0px;
+    padding-left: 0px;
+}
+
+.content{
+    padding-right: 0px;
+}
+
+.menu{
+   text-align: left!important;
+}
+.menu a{
+    width: 100%;
+    text-align: left;
+}
+
+/*.btn-success{*/
+/*    margin-bottom: 25px;*/
+/*}*/
+
+.table-extrato{
+    margin-bottom: 50px;
+}
+
+.extrato{
+    max-height: 319px!important;
+}
+.saldo{
+    padding-top: 6px;
 }

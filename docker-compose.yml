@@ -4,7 +4,7 @@ services:
   nginx:
     image: nginx:1.13
     volumes:
-      - "./app/ist-app/public:/var/www/html"
+      - "./app/ist-app:/var/www/html"
       - "./nginx/nginx.conf:/etc/nginx/nginx.conf"
     ports:
       - "80:80"
